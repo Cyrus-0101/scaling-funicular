@@ -1,0 +1,6 @@
+python3.9 -m venv my_env
+source my_env/bin/activate
+
+pip install -r requirements.txt
+coverage run --omit='*/my_env/*' manage.py test
+coverage html
