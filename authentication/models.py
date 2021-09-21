@@ -1,5 +1,8 @@
 from django.db import models
 
+# DRF Simple JWT.
+from rest_framework_simplejwt.tokens import RefreshToken
+
 # Base User Abstractions.
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -50,28 +53,22 @@ class UserManager(BaseUserManager):
         if otherfields.get('is_active') is not True:
             raise TypeError(_("Super users must have be active."))
 
-        user = self.create_user(email, username, password, **otherfields)
+        user = self.create_user(username, email, password, **otherfields)
 
         return user
 
 
 # Create your models here.
 class User(AbstractBaseUser, PermissionsMixin):
-    AUTH_TYPE_OPTIONS = [
-        ('google', 'Google'),
-        ('twitter', 'Twitter'),
-        ('facebook', 'Facebook'),
-        ('email', 'Email'),
-    ]
     
-    email = models.EmailField(verbose_name="email", max_length=60, unique=True)
-    username = models.CharField(max_length=30, unique=True)
-    date_joined = models.DateTimeField(verbose_name="Date joined", auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
-    birthday = models.DateTimeField(verbose_name="Birthday", auto_now_add=True)
+    username = models.CharField(max_length=30, db_index=True, unique=True)
+    email = models.EmailField(db_index=True, unique=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
+    date_joined = models.DateTimeField(verbose_name="Date joined", auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    birthday = models.DateTimeField(verbose_name="Birthday", auto_now_add=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -84,7 +81,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return str(self.email)
 
-    # def tokens(self):
-    #    return pass
+    def tokens(self):
+       refresh = RefreshToken.for_user(self)
+
+       return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+
+       }
 
 
