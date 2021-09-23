@@ -30,32 +30,27 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, username, email, password, **otherfields):
-        if username is None:
-            raise TypeError(_('Username is required for a user to sign up.'))
-
-        if password is None:
-            raise TypeError(_('Password is required for a user to sign up.'))
-
-        if email is None:
-            raise TypeError(_('Email is required for a user to sign up.'))
-        
+    def create_superuser(self, email, username, password, **otherfields):
         otherfields.setdefault('is_staff', True)
         otherfields.setdefault('is_superuser', True)
         otherfields.setdefault('is_active', True)
+        otherfields.setdefault('is_verified', True)
 
         if otherfields.get('is_staff') is not True:
-            raise TypeError(_("Super users must be staff."))
+            raise ValueError(_("Super users must be staff."))
 
         if otherfields.get('is_superuser') is not True:
-            raise TypeError(_("Super users must be super users."))
+            raise ValueError(_("Super users must be super users."))
         
         if otherfields.get('is_active') is not True:
-            raise TypeError(_("Super users must have be active."))
+            raise ValueError(_("Super users must have be active users on the platform.."))
 
-        user = self.create_user(username, email, password, **otherfields)
+        if otherfields.get('is_verified') is not True:
+            raise ValueError(_("Super users must be verified before authentication."))
 
-        return user
+
+        return self.create_user(email, username, password, **otherfields)
+
 
 
 # Create your models here.
