@@ -106,10 +106,9 @@ class UpdateLoyaltyPointValueFromPos(UpdateAPIView):
                     transactionPoints = redeemPoints,
                     transactionType = transactionType,
                     transactionPrice = transactionPrice,
-                    createdAt = currentTime,
+                    redeemedAt = currentTime,
                 )
 
-                loyalty_point.redeemedAt = currentTime
                 loyalty_point.totalPoints -= Decimal(redeemPoints)
 
                 serializer = self.serializer_class(data=loyalty_point_transaction, many=False)
