@@ -24,16 +24,25 @@ class LoyaltyPointTransaction(models.Model):
         ('accrew', 'Accrew'),
         ('redeem', 'Redeem'),
     ]
+
+    TRANSACTION_RESTAURANT_OPTIONS = [
+        ('mbuzi munch lavington', 'Mbuzi Munch Lavington'),
+        ('mbuzi munch naivasha', 'Mbuzi Munch Naivasha'),
+        ('mbuzi munch galleria', 'Mbuzi Munch Galleria')
+
+    ]
     loyaltyPoint = models.ForeignKey(LoyaltyPoint, on_delete=models.CASCADE)
-    transactionPoints = models.DecimalField(max_digits=5, decimal_places=2)
+    transactionPoints = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     transactionType = models.CharField(choices=TRANSACTION_TYPE_OPTIONS, max_length=50)
-    transactionPrice = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
+    transactionRestaurant=models.CharField(choices=TRANSACTION_RESTAURANT_OPTIONS, max_length=50)
+    transactionPrice = models.DecimalField(max_digits=7, decimal_places=2)
     redeemedAt = models.DateTimeField(auto_now_add=False, null=True, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    _id = models.AutoField(primary_key=True, editable=False)
 
+    REQUIRED_FIELDS = ['loyaltyPoint', 'transactionType', 'transactionRestaurant', 'transactionPrice']
+    
     class Meta:
-        ordering = ['_id']
+        ordering = ['id']
 
     def __str__(self):
         return str(self.transactionType)
