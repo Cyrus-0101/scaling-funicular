@@ -9,7 +9,7 @@ urlpatterns = [
     
     path('<str:pk>/reviews/', ProductCreateReviewView.as_view(), name="post-product-review"),
     path('top-products/', getTopProducts, name="get-top-products"),
-    path('<str:idx>/', getProduct, name="product"),
+    path('<str:pk>/', getProduct, name="product"),
 
     path('create-category/', CategoryCreateAdminView.as_view(), name="admin-create-product"),
     path('update-category/<str:pk>/', CategoryUpdateAdminView.as_view(), name="admin-update-categpry"),
