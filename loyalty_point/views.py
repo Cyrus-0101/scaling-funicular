@@ -35,15 +35,25 @@ class UpdateLoyaltyPointValueFromPos(UpdateAPIView):
     permission_classes = [IsAdminUser]
 
     def put(self, request, idx):
+        '''
+        Redeem or Accrew Loyalty Points from POS Route.
+        '''
         data = request.data
 
         transactionPrice = data['amount']
         transactionType = data['transactionType']
+        transactionRestaurant = data['transactionRestaurant']
 
         # Get User Object using User ID passed from URL.
         user = User.objects.get(id=idx)
 
         if transactionType == None:
+            raise ValidationError(
+                {'detail': 'Unacceptable request, please try again.'},
+                status = status.HTTP_406_NOT_ACCEPTABLE
+            )
+
+        if transactionRestaurant == None:
             raise ValidationError(
                 {'detail': 'Unacceptable request, please try again.'},
                 status = status.HTTP_406_NOT_ACCEPTABLE
@@ -73,21 +83,17 @@ class UpdateLoyaltyPointValueFromPos(UpdateAPIView):
                 loyaltyPoint = loyalty_point,
                 transactionPoints = accrewPoints,
                 transactionType = transactionType,
+                transactionRestaurant=transactionRestaurant,
                 transactionPrice = transactionPrice,
                 createdAt = currentTime,
             )
 
-            loyalty_point_transaction.save()
             loyalty_point.totalPoints += Decimal(accrewPoints)
             
-            
-            serializer = self.serializer_class(data=loyalty_point_transaction, many=False)
-            serializer.is_valid(raise_exception=True)
-
             loyalty_point.save()
 
             return Response(
-                {'detail': f"Successfully accredited {accrewPoints} to {loyalty_point.user.first_name}'s account. Thank you for choosing Mbuzi Munch."},
+                {'detail': f"Successfully accredited {accrewPoints} to {loyalty_point.user.username}'s account. Thank you for choosing Mbuzi Munch."},
                 status = status.HTTP_202_ACCEPTED
             )
             
@@ -111,13 +117,10 @@ class UpdateLoyaltyPointValueFromPos(UpdateAPIView):
 
                 loyalty_point.totalPoints -= Decimal(redeemPoints)
 
-                serializer = self.serializer_class(data=loyalty_point_transaction, many=False)
-                serializer.is_valid(raise_exception=True)
-
                 loyalty_point.save()
 
                 return Response(
-                    {'detail': f"Successfully deducted {redeemPoints} from {loyalty_point.user.first_name}'s account, worth {round(redeemPoints, 2)} Kshs. Keep shopping with us."},
+                    {'detail': f"Successfully deducted {redeemPoints} from {loyalty_point.user.username}'s account, worth {round(redeemPoints, 2)} Kshs. Keep shopping with us."},
                     status = status.HTTP_202_ACCEPTED
                 )
 
@@ -126,6 +129,5 @@ class UpdateLoyaltyPointValueFromPos(UpdateAPIView):
                 {'detail': 'Something wrong happened. Try checking your enums.'},
                 status = status.HTTP_400_BAD_REQUEST
             )
-
 
 
