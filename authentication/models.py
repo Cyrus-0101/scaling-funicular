@@ -62,8 +62,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
     date_joined = models.DateTimeField(verbose_name="Date joined", auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
-    birthday = models.DateTimeField(verbose_name="Birthday", auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True, editable=True)
+    birthday = models.DateTimeField(verbose_name="Birthday", null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
