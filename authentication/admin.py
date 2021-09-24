@@ -16,8 +16,9 @@ class UserAdminConfig(UserAdmin):
         'is_verified'
     ]
     list_filter = [
-        'email',
-        'username',
+        'is_active',
+        'is_staff',
+        'is_verified'
     ]
     ordering = ['date_joined']
     list_display = [
@@ -31,7 +32,7 @@ class UserAdminConfig(UserAdmin):
     fieldsets = [
         ('User Details', {'fields': ('email', 'username', 'is_verified')}),
         ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser',)}),
-        ('Personal', {'fields': ('date_joined', 'birthday', 'last_login',)})
+        ('Personal', {'fields': ('birthday', 'last_login',)})
     ]
 
     add_fieldsets = [
@@ -42,8 +43,10 @@ class UserAdminConfig(UserAdmin):
                 'username',
                 'password1',
                 'password2',
+                'birthday',
                 'is_active',
                 'is_staff',
+
             )
         })
     ]
