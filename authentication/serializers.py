@@ -55,6 +55,29 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['token']
         
+
+class UserSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField(read_only=True)
+    _id = serializers.SerializerMethodField(read_only=True)
+    isAdmin = serializers.SerializerMethodField(read_only=True)
+    isSuperUser = serializers.SerializerMethodField(read_only=True)
+        
+    class Meta:
+        model = User
+        fields = ['id', '_id', 'username', 'email', 'isAdmin', 'isSuperUser']
+
+    def get__id(self, obj):
+        return obj.id
+
+    def get_username(self, obj):
+        return obj.username
+
+    def get_isAdmin(self, obj):
+        return obj.is_staff
+
+    def get_isSuperUser(self, obj):
+        return obj.is_superuser
+
 class LoginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255, min_length=3)
     password = serializers.CharField(
