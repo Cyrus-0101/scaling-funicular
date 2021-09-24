@@ -22,13 +22,15 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+description = "This is the Official API and Documentation of the Mbuzi Munch Loyalty Program. This program allows users to register, order in-house with payments, accrew and redeem points, among many other functions. More details below."
+
 schema_view = get_schema_view(
    openapi.Info(
       title="Mbuzi Munch API",
       default_version='v1',
-      description="Mbuzi Munch Loyalty Program",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="contact@mbuzi.foods"),
+      description=description,
+      terms_of_service="https://www.mbuzimunch.com/policies/terms/",
+      contact=openapi.Contact(email="developers@mbuzimunch.com"),
       license=openapi.License(name="BSD License"),
    ),
    public=True,
