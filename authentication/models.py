@@ -12,17 +12,20 @@ from django.utils.translation import gettext as _
 # Manager.
 class UserManager(BaseUserManager):
 
-    def create_user(self, username, email, password):
-        if username is None:
-            raise TypeError(_('Username is required for a user to sign up.'))
+    def create_user(self, email, username, password, **other_fields):
+        if not email:
+            raise ValueError(_("Users must have an email address."))
 
-        if email is None:
-            raise TypeError(_('Email is required for a user to sign up.'))
+        if not username:
+            raise ValueError(_("Users must have a username."))
+
+        email=self.normalize_email(email)
 
         user = self.model(
+            email=email,
             username=username,
-            email=self.normalize_email(email)
-        )
+            **other_fields,
+        )   
 
         user.set_password(password)
 
@@ -37,20 +40,20 @@ class UserManager(BaseUserManager):
         otherfields.setdefault('is_verified', True)
 
         if otherfields.get('is_staff') is not True:
-            raise ValueError(_("Super users must be staff."))
+            raise ValueError(_("Super users must be staff to access the platform."))
 
         if otherfields.get('is_superuser') is not True:
-            raise ValueError(_("Super users must be super users."))
+            raise ValueError(_("Super users must be super users to access the platform."))
         
         if otherfields.get('is_active') is not True:
-            raise ValueError(_("Super users must have be active users on the platform.."))
+            raise ValueError(_("Super users must have be active to access the platform."))
 
         if otherfields.get('is_verified') is not True:
-            raise ValueError(_("Super users must be verified before authentication."))
+            raise ValueError(_("Super users must have be verified to access the platform."))
+
 
 
         return self.create_user(email, username, password, **otherfields)
-
 
 
 # Create your models here.
