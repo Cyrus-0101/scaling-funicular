@@ -1,4 +1,5 @@
 # Unit Test
+from authentication.serializers import RegisterSerializer, UserSerializer
 from django.test import TestCase
 
 # User Model
@@ -13,13 +14,13 @@ class UserAccountTests(TestCase):
         db = get_user_model()           # Get Active User Model
         super_user = db.objects.create_superuser(
             'test@superuser.com',       # Email
-            'Username',                 # Username
+            'Username98',               # Username
             'pass123'                   # Password
 
         )
 
         self.assertEqual(super_user.email, 'test@superuser.com')
-        self.assertEqual(super_user.username, 'Username')
+        self.assertEqual(super_user.username, 'Username98')
         self.assertTrue(super_user.is_superuser)
         self.assertTrue(super_user.is_staff)
         self.assertTrue(super_user.is_active)
@@ -100,3 +101,13 @@ class UserAccountTests(TestCase):
                 username="Uarname",
                 password="pass123",
             )
+
+        RegisterSerializer.get_isAdmin(self, user)
+        RegisterSerializer.get_isSuperUser(self, user)
+        UserSerializer.get__id(self, user)
+        UserSerializer.get_username(self, user)
+        UserSerializer.get_isAdmin(self, user)
+        UserSerializer.get_isSuperUser(self, user)
+
+        
+
