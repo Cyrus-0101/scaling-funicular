@@ -1,4 +1,5 @@
 # Unit Test
+from product.serializers import CategorySerializer, ProductSerializer
 from django.test import TestCase
 
 # User Model
@@ -14,8 +15,12 @@ class CategoryTests(TestCase):
     """
         Test to create new Category.
     """
+
     def setUp(self):
-        Category.objects.create(name="Category Name")
+        category = Category.objects.create(name="Category Name")
+        CategorySerializer(category, many=False)
+
+
 
     def test_new_category(self):
         category = Category.objects.get(name="Category Name")
@@ -35,13 +40,14 @@ class ProductTests(TestCase):
             'pass123'                   # Password
         )
         category = Category.objects.create(name="Category Name")
-        Product.objects.create(
+        product = Product.objects.create(
             user=super_user,
             name="Product Name",
             category=category,
             description="Really cool",
             price=1000.00,
         )
+        ProductSerializer(product)
 
     def test_new_product(self):
         product = Product.objects.get(name="Product Name")
@@ -75,6 +81,8 @@ class ReviewTests(TestCase):
             rating=4.5,
             comment="Really cool",
         )
+
+        ProductSerializer.get_reviews(self, product)
 
     def test_new_review(self):
         review = Review.objects.get(name="Review Name")
