@@ -1,4 +1,5 @@
 # Unit Test
+from order.serializers import OrderSerializer
 from django.test import TestCase
 
 # User Model
@@ -84,6 +85,10 @@ class OrderItemTests(TestCase):
             price=product.price,
             image=product.image
         )
+
+        OrderSerializer.get_orderItems(self, order)
+        OrderSerializer.get_shippingAddress(self, order)
+        # OrderSerializer.get_user(self, order)
 
     def test_new_order_item(self):
         orderItem = OrderItem.objects.get(_id=1)
