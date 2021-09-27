@@ -64,8 +64,13 @@ def getProducts(request):
     if page == None:
         page = 1
 
+    if not products:
+        return Response(
+            {'detail': 'Currently no products on the platform yet, contact the admin to add products to the platform.'},
+            status=status.HTTP_204_NO_CONTENT
+        )
+
     page = int(page)
-    print('Page:', page)
     serializer = ProductSerializer(products, many=True)
     return Response({'products': serializer.data, 'page': page, 'pages': paginator.num_pages})
 
@@ -119,13 +124,12 @@ def getCategories(request):
 def getTopProducts(request):
     products = Product.objects.filter(rating__gte=4).order_by('-rating')[0:5]
     serializer = ProductSerializer(products, many=True)
-    if products is []:
+    if not products:
         return Response(
             {'detail': 'Currently no products reviewed yet, choose a product you want and make a review.'},
-            status=status.HTTP_200_OK
+            status=status.HTTP_204_NO_CONTENT
         )
     else:
-        serializer.is_valid(raise_exception=True)
         return Response(
             serializer.data
         )
