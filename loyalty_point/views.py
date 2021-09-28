@@ -69,7 +69,7 @@ class UpdateLoyaltyPointValueFromPos(UpdateAPIView):
         # One User can have multiple points, how can I keep track of all users points 
 
         accrewPoints = transactionPrice / base_loyalty_conversion_rate # This is in LoyaltyPoint
-        redeemPoints = (transactionPrice / base_loyalty_conversion_rate) / 1 # This is in Kshs.
+        redeemPoints = (transactionPrice / 1) # This is in Kshs.
         
         # Create Loyalty Point Object.
         loyalty_point = LoyaltyPoint.objects.get(user = user)
