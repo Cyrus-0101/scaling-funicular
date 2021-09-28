@@ -1,11 +1,26 @@
 # DRF Serializers
+from authentication.utils import Util
 from rest_framework import serializers
 
 # DRF Simple JWT.
 from rest_framework_simplejwt.tokens import RefreshToken
 
+# Password Reset Token.
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+
+from django.utils.encoding import DjangoUnicodeDecodeError, force_str, smart_str, smart_bytes
+
+# Encoding and Decoding.
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+
 # Custom Models.
 from .models import User
+
+# Get frontend URL.
+from django.contrib.sites.shortcuts import get_current_site
+
+# Reverse URL
+from django.urls import reverse
 
 # Utils.
 from django.contrib.auth import authenticate
@@ -47,14 +62,12 @@ class RegisterSerializer(serializers.ModelSerializer):
     def get_isAdmin(self, obj):
         return obj.is_staff
 
-
 class EmailVerificationSerializer(serializers.ModelSerializer):
     token = serializers.CharField(max_length=555)
 
     class Meta:
         model = User
         fields = ['token']
-        
 
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField(read_only=True)
@@ -77,6 +90,57 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_isSuperUser(self, obj):
         return obj.is_superuser
+
+class RequestPasswordResetSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+
+    class Meta:
+        model = User
+        fields = ['email']
+
+    def validate(self, obj):
+        email = obj['data'].get('email', '')
+
+class SetNewUserPasswordSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=8)
+    token = serializers.CharField(write_only=True)
+    uidb64 = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['password', 'token', 'uidb64']
+
+    def validate(self, obj):
+        try:
+            password = obj.get('password')
+            token = obj.get('token')
+            uidb64 = obj.get('uidb64')
+
+            id = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(id=id)
+
+            if not PasswordResetTokenGenerator().check_token(user, token):
+                raise AuthenticationFailed('The reset link is invalid. Try again.', 401)
+
+            user.set_password(password)
+
+            user.save()
+
+            email_body = f'Hello.\nWe have successfully reset your password.\nUse the newly set password to board the platform.\nWelcome back to Mbuzi Loyalty Program.'
+            data = {
+                'email_subject': 'Password Reset Successfully.',
+                'email_body': email_body,
+                'to_email': user.email 
+            }
+
+            Util.send_email(data)
+
+            return user
+
+        except Exception as e:
+            raise AuthenticationFailed('Something terrible happened. Please try resetting your password again.', 400)
+
+        return super().validate(obj)
 
 class LoginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=255, min_length=3)
@@ -113,15 +177,19 @@ class LoginSerializer(serializers.ModelSerializer):
             raise AuthenticationFailed('Invalid credentials, try again')
         
         if not user.is_active:
-            raise AuthenticationFailed('Account disabled, contact admin')
+            raise AuthenticationFailed('Account is not active. Check your email and verify your account to access the platform')
         
         if not user.is_verified:
-            raise AuthenticationFailed('Email is not verified')
+            raise AuthenticationFailed('Email is not verified. Check your email and verify your account to access the platform')
             
         return {
             'email': user.email,
             'username': user.username,
             'tokens': user.tokens
         }
+
+
+
+
 
 
