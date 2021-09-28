@@ -64,6 +64,9 @@ def getProducts(request):
     if page == None:
         page = 1
 
+
+    # Refactor
+
     if not products:
         return Response(
             {'detail': 'Currently no products on the platform yet, contact the admin to add products to the platform.'},
